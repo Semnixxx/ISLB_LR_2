@@ -51,18 +51,61 @@ function checkEquivalence(formula1, formula2) {
 
         _atoms1 = _atoms2 = unitedAtoms;
     }
-    
-    _formula1 = formula1;
-    _formula2 = formula2;
 
     _truthTable1 = buildTruthTable(formula1, _atoms1);
     _truthTable2 = buildTruthTable(formula2, _atoms2);
+
+    let unnec1 = getUnnecessaryAtoms(formula1, _atoms1, _truthTable1);
+    let unnec2 = getUnnecessaryAtoms(formula2, _atoms2, _truthTable2);
+
+    if (unnec1.length !== 0 || unnec2.length !== 0) {
+        let atomsLeft1 = getArrayDifference(_atoms1, unnec1);
+        let atomsLeft2 = getArrayDifference(_atoms2, unnec2);
+        
+        if (atomsLeft1.every((atom, index) => (atom === atomsLeft2[index]))) {
+            return true;
+        }
+    }
 
     if (!secondAtomsIncludeFirstOrNaoborot) {
         return false;
     }
 
     return areTablesEqual(_truthTable1, _truthTable2);
+}
+
+function getArrayDifference(array1, array2) {
+    let difference = [];
+
+    array1.forEach(el => {
+        if (array2.indexOf(el) === -1) {
+            difference.push(el);
+        }
+    });
+
+    return difference;
+}
+
+function getUnnecessaryAtoms(formula, atoms, truthTable) {
+    let unnecessaryAtoms = [];
+    let values = Array.from(truthTable.values());
+    
+    atoms.forEach((atom, index) => {
+        let results = [];
+        let sets = Array.from(truthTable.keys());
+
+        sets.forEach(set => {
+            let replacedSet = [...set];
+            replacedSet[index] = "0";
+
+            let formulaWithValues = emplaceValues(replacedSet, atoms, formula);
+            results.push(getFunctionResult(formulaWithValues));
+        });
+
+        if (results.every((result, index) => result === values[index])) unnecessaryAtoms.push(atom);
+    });
+
+    return unnecessaryAtoms;
 }
 
 function uniteAtoms(atoms1, atoms2) {
