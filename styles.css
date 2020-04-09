@@ -1,0 +1,75 @@
+.button {
+    margin: 5px auto;
+}
+
+span {
+    font-size: 24px;
+}
+
+#formulaInput1, #formulaInput2 {
+    margin: 5px auto;
+    overflow: hidden;
+    width: 200px;
+
+    font-size: 24px;
+}
+
+#messageText {
+    font-weight: bold;
+    font-size: 22pt;
+}
+
+#truthTables {
+    display: flex;
+    justify-content: left;
+    align-items: left;
+    flex-direction: row;
+}
+
+#truthTable2 {
+    margin-left: 60px;
+}
+
+a {
+    text-decoration: none;
+    outline: none;
+}
+
+#truthTable1, #truthTable2 {
+    font-size: 24px;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+#testLink, #pageTitle {
+    margin: 15px auto;
+}
+
+#testSection {
+    display: none;
+    justify-content: left;
+    align-items: left;
+    flex-direction: column;
+}
+
+#trueLabel, #falseLabel {
+    font-size: 24px;
+}
+
+.radio {
+	width: 24px;
+    height: 24px;
+}
+
+#score {
+    font-size: 30px;
+}
+
+#formula {
+    font-size: 30px;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+#nextButton {
+    margin: 15px 15px;
+    width: 200px;
+}

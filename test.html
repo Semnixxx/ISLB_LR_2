@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="styles.css">
+        <title>Тестирование</title>
+    </head>
+
+    <body>
+        <button class="button" id="startButton" onclick="startTest()"><span>Начать тестирование</span></button>
+        <div id="testSection">
+            <div id="question">
+                <span>Формулы равносильны?</span>
+                <br>
+                <span id="formula"></span>
+            </div>
+    
+            <br>
+            <form id="answer">
+                <input type="radio" id="true" name="radio" class="radio" checked="true">
+                <label for="true" id="trueLabel">да</label>
+                <input type="radio" id="false" name="radio" class="radio">
+                <label for="false" id="falseLabel">нет</label>
+            </form>
+    
+            <br>
+            <button class="button" id="nextButton" onclick="next()"><span>Далее</span></button>
+        </div>
+        
+        <div id="resultSection">
+            <span id="score"></span>
+        </div>
+        
+        <script src="main.js"></script>
+    </body>
+</html>
