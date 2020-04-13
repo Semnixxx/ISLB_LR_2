@@ -58,12 +58,39 @@ function checkEquivalence(formula1, formula2) {
     let unnec1 = getUnnecessaryAtoms(formula1, _atoms1, _truthTable1);
     let unnec2 = getUnnecessaryAtoms(formula2, _atoms2, _truthTable2);
 
+    if (unnec1.length === _atoms1.length && _atoms1.every((atom, index) => atom === unnec1[index])) {
+        formula1 = '1';
+    }
+
+    if (unnec2.length === _atoms2.length && _atoms2.every((atom, index) => atom === unnec2[index])) {
+        formula2 = '1';
+    }
+    
+    if (formula1 === formula2) {
+        return true;
+    }
+
     if (unnec1.length !== 0 || unnec2.length !== 0) {
         let atomsLeft1 = getArrayDifference(_atoms1, unnec1);
         let atomsLeft2 = getArrayDifference(_atoms2, unnec2);
         
         if (atomsLeft1.every((atom, index) => (atom === atomsLeft2[index]))) {
-            return true;
+            formula1 = replaceUnnec(formula1, unnec1);
+            formula2 = replaceUnnec(formula2, unnec2);
+
+            let ttCopy1 = new Map(_truthTable1);
+            let ttCopy2 = new Map(_truthTable2);
+            let atomsCopy1 = [..._atoms1];
+            let atomsCopy2 = [..._atoms2];
+
+            let equal = checkEquivalence(formula1, formula2);
+
+            _truthTable1 = ttCopy1;
+            _truthTable2 = ttCopy2;
+            _atoms1 = atomsCopy1;
+            _atoms2 = atomsCopy2;
+
+            return equal;
         }
     }
 
@@ -72,6 +99,14 @@ function checkEquivalence(formula1, formula2) {
     }
 
     return areTablesEqual(_truthTable1, _truthTable2);
+}
+
+function replaceUnnec(formula, atoms) {
+    atoms.forEach(atom => {
+        formula = formula.replace(new RegExp(atom, 'g'), '0');
+    });
+
+    return formula;
 }
 
 function getArrayDifference(array1, array2) {
@@ -242,7 +277,8 @@ class Question {
     }
 }
 
-var atoms = [ 'U', 'R' ];
+var atomsForTest1 = [ 'U', 'R', 'K', 'G' ];
+var atomsForTest2 = [ 'G', 'U', 'D', 'R' ];
 
 var currentQuestion;
 var countOfQuestions = 5;
@@ -288,10 +324,10 @@ function next() {
 }
 
 function generateQuestion() {
-    let countOfArgs1 = getRandomInt(1);
-    let countOfGroups1 = getRandomInt(1);
-    let countOfArgs2 = getRandomInt(1);
-    let countOfGroups2 = getRandomInt(1);
+    let countOfArgs1 = getRandomInt(2);
+    let countOfGroups1 = getRandomInt(2);
+    let countOfArgs2 = getRandomInt(2);
+    let countOfGroups2 = getRandomInt(2);
 
     let formula1 = generateFormula(countOfGroups1, countOfArgs1);
     let formula2 = generateFormula(countOfGroups2, countOfArgs2);
@@ -306,6 +342,7 @@ function getRandomInt(max) {
 
 function generateFormula(countOfGroups, countOfArgs) {
     let formula = '';
+    let atoms = (Math.random() >= 0.5) ? atomsForTest1 : atomsForTest2;
 
     for (i = 0; i < countOfGroups; i++) {
         let countOfArgsInParticualarGroup = countOfArgs - getRandomInt(countOfArgs) + 2;
@@ -315,13 +352,21 @@ function generateFormula(countOfGroups, countOfArgs) {
             formula += '(';
         }
 
+        let willRepeat = false;
+
         for (j = 0; j < countOfArgsInParticualarGroup; j++) {
+            let currAtom = atoms[j];
+
+            if (willRepeat) {
+                currAtom = atoms[j - 1];
+            }
             if (countOfArgsInParticualarGroup !== 1 && j < countOfArgsInParticualarGroup - 1) {
                 group += '(';
             }
 
             let isNegative = (Math.random() >= 0.5);
-            group += (isNegative ? '(!' : '') + atoms[j] + (isNegative ? ')' : '');
+            willRepeat = isNegative;
+            group += (isNegative ? '(!' : '') + currAtom + (isNegative ? ')' : '');
             if (j < countOfArgsInParticualarGroup - 1) {
                 let random  = Math.random();
                 group += ((random >= 0.3) ? '|' : (random >= 0.2 ? '&' : (random >= 0.1 ? '~' : '->')));
