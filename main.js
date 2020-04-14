@@ -42,6 +42,9 @@ function checkEquivalence(formula1, formula2) {
     
     // во второй фромуле есть все атомы из первой или наоборот
     let secondAtomsIncludeFirstOrNaoborot = (_atoms1.every(atom => _atoms2.indexOf(atom) !== -1)) || (_atoms2.every(atom => _atoms1.indexOf(atom) !== -1));
+    
+    let unnec1 = [];
+    let unnec2 = [];
 
     if (secondAtomsIncludeFirstOrNaoborot && atomsCountDiffer) {
         let unitedAtoms = uniteAtoms(_atoms1, _atoms2);
@@ -55,8 +58,12 @@ function checkEquivalence(formula1, formula2) {
     _truthTable1 = buildTruthTable(formula1, _atoms1);
     _truthTable2 = buildTruthTable(formula2, _atoms2);
 
-    let unnec1 = getUnnecessaryAtoms(formula1, _atoms1, _truthTable1);
-    let unnec2 = getUnnecessaryAtoms(formula2, _atoms2, _truthTable2);
+    unnec1 = getUnnecessaryAtoms(formula1, _atoms1, _truthTable1);
+    unnec2 = getUnnecessaryAtoms(formula2, _atoms2, _truthTable2);
+
+    if (!unnec1.every(atom => unnec2.indexOf(atom) !== -1) || !unnec2.every(atom => unnec1.indexOf(atom) !== -1)) {
+        return false;
+    }
 
     if (unnec1.length === _atoms1.length && _atoms1.every((atom, index) => atom === unnec1[index])) {
         formula1 = '1';
