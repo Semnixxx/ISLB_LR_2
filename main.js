@@ -33,121 +33,20 @@ function check() {
     tt2Element.innerHTML = _formula2.italics() + '<br>' + drawTruthTable(_truthTable2, _atoms2);
 }
 
-function checkEquivalence(formula1, formula2) {
+function checkEquivalence(formula1, formula2) {    
     _atoms1 = getAtoms(formula1).sort();
     _atoms2 = getAtoms(formula2).sort();
 
-    // количество атомов различается
-    let atomsCountDiffer = (_atoms1.length !== _atoms2.length);
-    
-    // во второй фромуле есть все атомы из первой или наоборот
-    let secondAtomsIncludeFirstOrNaoborot = (_atoms1.every(atom => _atoms2.indexOf(atom) !== -1)) || (_atoms2.every(atom => _atoms1.indexOf(atom) !== -1));
-    
-    let unnec1 = [];
-    let unnec2 = [];
+    let unitedAtoms = uniteAtoms(_atoms1, _atoms2);
+    _atoms1 = _atoms2 = unitedAtoms;
 
-    if (secondAtomsIncludeFirstOrNaoborot && atomsCountDiffer) {
-        let unitedAtoms = uniteAtoms(_atoms1, _atoms2);
-
-        formula1 = supplementFormula(formula1, _atoms1, unitedAtoms);
-        formula2 = supplementFormula(formula2, _atoms2, unitedAtoms);
-
-        _atoms1 = _atoms2 = unitedAtoms;
-    }
+    formula1 = supplementFormula(formula1, _atoms1, unitedAtoms);
+    formula2 = supplementFormula(formula2, _atoms2, unitedAtoms);
 
     _truthTable1 = buildTruthTable(formula1, _atoms1);
     _truthTable2 = buildTruthTable(formula2, _atoms2);
-
-    unnec1 = getUnnecessaryAtoms(formula1, _atoms1, _truthTable1);
-    unnec2 = getUnnecessaryAtoms(formula2, _atoms2, _truthTable2);
-
-    if (!unnec1.every(atom => unnec2.indexOf(atom) !== -1) || !unnec2.every(atom => unnec1.indexOf(atom) !== -1)) {
-        return false;
-    }
-
-    if (unnec1.length === _atoms1.length && _atoms1.every((atom, index) => atom === unnec1[index])) {
-        formula1 = '1';
-    }
-
-    if (unnec2.length === _atoms2.length && _atoms2.every((atom, index) => atom === unnec2[index])) {
-        formula2 = '1';
-    }
     
-    if (formula1 === formula2) {
-        return true;
-    }
-
-    if (unnec1.length !== 0 || unnec2.length !== 0) {
-        let atomsLeft1 = getArrayDifference(_atoms1, unnec1);
-        let atomsLeft2 = getArrayDifference(_atoms2, unnec2);
-        
-        if (atomsLeft1.every((atom, index) => (atom === atomsLeft2[index]))) {
-            formula1 = replaceUnnec(formula1, unnec1);
-            formula2 = replaceUnnec(formula2, unnec2);
-
-            let ttCopy1 = new Map(_truthTable1);
-            let ttCopy2 = new Map(_truthTable2);
-            let atomsCopy1 = [..._atoms1];
-            let atomsCopy2 = [..._atoms2];
-
-            let equal = checkEquivalence(formula1, formula2);
-
-            _truthTable1 = ttCopy1;
-            _truthTable2 = ttCopy2;
-            _atoms1 = atomsCopy1;
-            _atoms2 = atomsCopy2;
-
-            return equal;
-        }
-    }
-
-    if (!secondAtomsIncludeFirstOrNaoborot) {
-        return false;
-    }
-
     return areTablesEqual(_truthTable1, _truthTable2);
-}
-
-function replaceUnnec(formula, atoms) {
-    atoms.forEach(atom => {
-        formula = formula.replace(new RegExp(atom, 'g'), '0');
-    });
-
-    return formula;
-}
-
-function getArrayDifference(array1, array2) {
-    let difference = [];
-
-    array1.forEach(el => {
-        if (array2.indexOf(el) === -1) {
-            difference.push(el);
-        }
-    });
-
-    return difference;
-}
-
-function getUnnecessaryAtoms(formula, atoms, truthTable) {
-    let unnecessaryAtoms = [];
-    let values = Array.from(truthTable.values());
-    
-    atoms.forEach((atom, index) => {
-        let results = [];
-        let sets = Array.from(truthTable.keys());
-
-        sets.forEach(set => {
-            let replacedSet = [...set];
-            replacedSet[index] = "0";
-
-            let formulaWithValues = emplaceValues(replacedSet, atoms, formula);
-            results.push(getFunctionResult(formulaWithValues));
-        });
-
-        if (results.every((result, index) => result === values[index])) unnecessaryAtoms.push(atom);
-    });
-
-    return unnecessaryAtoms;
 }
 
 function uniteAtoms(atoms1, atoms2) {
